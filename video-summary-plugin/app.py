@@ -5,6 +5,7 @@ import os
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -16,6 +17,29 @@ from video_summary.evidence import normalize_evidence_level, source_evidence
 from video_summary.library import VideoLibrary
 from video_summary.summarizer import summarize_source
 
+_render_hostname = os.getenv(
+    "RENDER_EXTERNAL_HOSTNAME",
+    "lwfdz-video-summary-plugin.onrender.com",
+).strip()
+_transport_security = TransportSecuritySettings(
+    enable_dns_rebinding_protection=True,
+    allowed_hosts=[
+        _render_hostname,
+        f"{_render_hostname}:*",
+        "127.0.0.1:*",
+        "localhost:*",
+        "[::1]:*",
+        "testserver",
+    ],
+    allowed_origins=[
+        f"https://{_render_hostname}",
+        f"https://{_render_hostname}:*",
+        "http://127.0.0.1:*",
+        "http://localhost:*",
+        "http://[::1]:*",
+    ],
+)
+
 mcp = FastMCP(
     "视频总结",
     instructions=(
@@ -26,6 +50,7 @@ mcp = FastMCP(
     ),
     stateless_http=True,
     json_response=True,
+    transport_security=_transport_security,
 )
 library = VideoLibrary(os.getenv("DATA_DIR", "data"))
 
