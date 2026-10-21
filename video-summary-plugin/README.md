@@ -175,7 +175,7 @@ pytest -q
 仓库现在同时包含三层：
 
 - `skills/video-summary/SKILL.md`：规定视频总结、证据分级、事实核查和知识卡工作流。
-- `.codex-plugin/plugin.json`：插件清单；部署后把 `.mcp.json` 中的 Render 地址替换为真实 `/mcp` 地址。
+- `plugin-manifest.json`：本仓库的 MCP 服务描述清单；它用于说明服务入口和工具列表，不是某个客户端专属的导入格式。
 - `app.py` 与 `video_summary/`：远程 MCP 后端，负责 B 站链接、公开字幕和知识库读写。
 
 证据等级的含义是：A 代表有完整材料并完成关键事实核查；B 代表有可用字幕或转写；C 代表只有页面元数据和来源线索；D 代表只有链接或极少信息。没有完整字幕时，系统不会把标题或简介冒充成完整视频总结。
@@ -186,7 +186,7 @@ pytest -q
 
 ### 连接 MCP
 
-部署 Render 后，将 `.mcp.json` 和 `skills/video-summary/agents/openai.yaml` 中的 `YOUR-RENDER-SERVICE` 替换为你的服务域名。不要把 `OPENAI_API_KEY` 或 `BILIBILI_COOKIE` 写入这些文件；它们只能作为 Render Secret 配置。
+部署 Render 后，在 MCP 客户端中连接 `https://你的服务域名/mcp`。如使用 `skills/video-summary/agents/openai.yaml`，将其中的 `YOUR-RENDER-SERVICE` 替换为你的服务域名。不要把 `OPENAI_API_KEY` 或 `BILIBILI_COOKIE` 写入客户端配置；它们只能作为 Render Secret 配置。
 
 ## 安全提示
 
