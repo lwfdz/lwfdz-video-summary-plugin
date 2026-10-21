@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: Video Summary MCP Service
+  version: 0.1.0
+  description: >-
+    Health endpoint and HTTP binding for the stateless MCP server. MCP tools are
+    discovered with tools/list and called with tools/call over JSON-RPC 2.0.
+servers:
+  - url: https://YOUR-SERVICE-HOST
+    description: Replace with the deployed HTTPS origin.
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Check service health
+      responses:
+        '200':
+          description: Service is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service, mcp_endpoint]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+                  service:
+                    type: string
+                    examples: [video-summary-mcp]
+                  mcp_endpoint:
+                    type: string
+                    examples: [/mcp]
+  /mcp:
+    post:
+      operationId: mcpJsonRpc
+      summary: Send an MCP JSON-RPC request
+      description: >-
+        Streamable HTTP MCP endpoint. Initialize the session, list available tools,
+        and invoke tools using the MCP protocol. The server is stateless and returns
+        JSON responses; use the MCP client configuration rather than treating each
+        tool as a separate REST operation.
+      x-mcp-protocol: streamable-http
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+      responses:
+        '200':
+          description: JSON-RPC result or error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
+        '400':
+          description: Invalid request.
+        '405':
+          description: Unsupported HTTP method.
+        '406':
+          description: Unsupported response media type.
+        '415':
+          description: Unsupported request media type.
+components:
+  schemas:
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, method]
+      properties:
+        jsonrpc:
+          type: string
+          const: '2.0'
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+            - type: 'null'
+        method:
+          type: string
+          examples: [initialize, tools/list, tools/call]
+        params:
+          type: object
+          additionalProperties: true
+      additionalProperties: true
+    JsonRpcResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          const: '2.0'
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+            - type: 'null'
+        result:
+          type: object
+          additionalProperties: true
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+            data: {}
+      additionalProperties: true
