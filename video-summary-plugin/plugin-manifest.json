@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "name": "video-summary-mcp",
+  "display_name": "视频总结",
+  "version": "0.1.0",
+  "description": "提取 B 站公开字幕、生成视频总结，并保存与搜索个人视频知识库。",
+  "protocol": {
+    "name": "model-context-protocol",
+    "transport": "streamable-http",
+    "endpoint_path": "/mcp",
+    "openapi": "openapi.yaml"
+  },
+  "service": {
+    "entrypoint": "app:app",
+    "health_check_path": "/health",
+    "runtime": "python>=3.12",
+    "dependencies": "requirements.txt"
+  },
+  "deployment": {
+    "dockerfile": "Dockerfile",
+    "render_blueprint": "../render.yaml",
+    "port_environment_variable": "PORT"
+  },
+  "tools": [
+    "get_video_info",
+    "extract_video_transcript",
+    "summarize_video",
+    "save_video_note",
+    "search_video_library",
+    "get_video_note",
+    "video_knowledge_base_stats"
+  ],
+  "configuration": {
+    "optional_environment_variables": [
+      "OPENAI_API_KEY",
+      "SUMMARY_MODEL",
+      "BILIBILI_COOKIE",
+      "DATA_DIR"
+    ]
+  }
+}
